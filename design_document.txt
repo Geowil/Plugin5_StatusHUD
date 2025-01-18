@@ -1,0 +1,142 @@
+Name: Status HUD
+Version: 0.01
+Description: Add UI elements to the Map Scene that shows lead character's status
+	
+
+Requirements:
+	The UI element should show the following information
+		HP
+		MP
+		Character Portrait
+		Level/EXP
+		Class
+		Status Effect List
+
+	HP and MP should be circular gauges that match the color used within the status scene.
+
+	Class and Status Icon list should be displayed within box UI elements.  Class should show the character's class name.
+	
+	Exp should be a standard gauge.  Level should be displayed to the left of the EXP gauge.  Should is be contained in a small box?  More complex
+	background UI elmement may be needed here.
+
+	The character portrait should be circular and fit within the HP/MP gauges.
+
+	Status effect icons should either show up to the side (aligned to the middle) of the HP/MP gauge element or be displayed under the Class Name element.
+	
+	The UI element position should be an option that the player can change.  Based on the gauge position, the icon list should change sides.  If the UI element
+	if in the Top Middle or Bottom Middle, the Icon List should be placed under the Class Name element.
+
+	The HP/MP gauges should have two modes, one where the they are full circles and one where they are half circles.
+
+	The player should be able to turn off the UI element or EXP gauge, Class name, or Status Icon list.  If a UI element is hidden that is above another
+	UI element in the stack (IE: Exp, which is above Class Name), then the lower UI element should be moved into the position of the hidden UI element.
+	If the player hides EXP, Class Name should be moved up into the EXP gauges position, for example.
+
+	All player selectable options should show up in the options menu:
+		Hide entire UI element
+		Hide EXP gauge
+		Hide Class Name
+		Center Status Icon List
+		UI element position
+		Gauge mode
+
+	UI element should hide automatically for certain events:
+		Battle
+		Non-map scene opens from a map where the UI element is displayed
+
+		When hiding, the UI element should probably fade out instead of popping out.
+		When unhiding, the UI element should probably fade in instead of popping in.
+
+
+Plugin Params
+	Enable Status HUD
+		Boolean
+		False
+		When enabled, turns on the plugin and displays the status window.
+
+	Gauge Mode
+		Integer (1-2)
+			1 - Circular Gauges
+				When enabled, this option will change the HP/MP guages into circular gauges.
+
+			2 - Semi-Cicular Gauges
+				When enabled, this option will change the HP/MP gauges into semi-circular gauges.
+
+	HP Gauge Color
+		Text
+		Default HP Gauge Color
+		Sets the gauge color for HP gauge.
+
+	MP Gauge Color
+		Text
+		Default MP Gauge Color
+		Sets the gauge color for MP gauge.
+
+	Default UI Position
+		Integer (1-5)
+			1 - Top Left
+			2 - Top Middle
+			3 - Top Right
+			4 - Middle Left
+			5 - Middle Right
+			6 - Bottom Left
+			7 - Bottom Middle
+			8 - Bottom Right
+		1
+
+		Sets the default position that the UI will be displayed.
+
+	Display Class
+		Boolean
+		False
+		When enabled, display the character class in the HUD window.
+
+	Display Status Icon List
+		Boolean
+		False
+		When enabled, displays the set number of status icons in the HUD window.
+
+	Status Display Limit
+		Integer (1-5)
+		1/5
+		Sets the number of icons to be displayed in the status list.  Status order is based on prority.
+
+	Display Level/Exp
+		Boolean
+		False
+		When enabled, displays the character level in the HUD window.
+
+	EXP Gauge Color
+		Text
+		#FFFFEE
+		Sets the color for the EXP gauge.
+
+	Show Downed character
+		Boolean
+		False
+		When enabled, if the lead character is downed, show their status on the HUD window.  When disabled, the next character in the party is shown.
+
+	On-Screen Battle
+		Boolean
+		False
+		When enabled, the UI element won't be hidden during battle, if the on-screen battle plugin being used still uses the normal battle system in some
+		way and doesn't have it's own UI elements.
+
+
+Plugin Commands
+	TutorialPlugin5.StatusHUD Enabled Yes/No
+		Params:
+			Boolean
+			true/false
+
+		Enables or disables the status HUD from in-game.
+
+
+Notes:
+	When not on a map, the HUD should be hidden; meaning if in another scene like a shop or potentially when dialog is happening UI element should be hidden.
+	These use cases are technically already covered by the plugin command, but allowing the plugin to automatically manage its own visibility status
+	based on what is happening would be preferable.  Some situations, like battle, we will need to automate this anyway.
+
+	Check if there is a party leader setting in RPG Maker MV, if so, this character should be the one shown in the UI elmement.  If Downed Character setting
+	is disabled, still then go sequentually through party list.
+
