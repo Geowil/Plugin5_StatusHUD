@@ -28,6 +28,9 @@ Requirements:
 
 	The HP/MP gauges should have two modes, one where the they are full circles and one where they are half circles.
 
+	Any critical errors should be displayed to the game window.  Any lesser errors should be displayed to console as an error, warning and info likewise as
+	the appropriate level.
+
 	The player should be able to turn off the UI element or EXP gauge, Class name, or Status Icon list.  If a UI element is hidden that is above another
 	UI element in the stack (IE: Exp, which is above Class Name), then the lower UI element should be moved into the position of the hidden UI element.
 	If the player hides EXP, Class Name should be moved up into the EXP gauges position, for example.
@@ -86,6 +89,11 @@ Plugin Params
 
 		Sets the default position that the UI will be displayed.
 
+	Display Level/Exp
+		Boolean
+		False
+		When enabled, displays the character level in the HUD window.
+
 	Display Class
 		Boolean
 		False
@@ -100,11 +108,6 @@ Plugin Params
 		Integer (1-5)
 		1/5
 		Sets the number of icons to be displayed in the status list.  Status order is based on prority.
-
-	Display Level/Exp
-		Boolean
-		False
-		When enabled, displays the character level in the HUD window.
 
 	EXP Gauge Color
 		Text
@@ -140,3 +143,10 @@ Notes:
 	Check if there is a party leader setting in RPG Maker MV, if so, this character should be the one shown in the UI elmement.  If Downed Character setting
 	is disabled, still then go sequentually through party list.
 
+
+Polish Items:
+	Downed Character
+
+
+Fixes:
+	On the right side, Status Icon Bar isn't being adjust to show up on left side of gauges now.

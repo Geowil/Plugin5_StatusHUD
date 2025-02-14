@@ -24,46 +24,26 @@ TutorialCore.statics = TutorialCore.statics || {};
 
 (function() {
 	/* Plugin Properties */
-	var _tutorialNoteTagsProcessed = false;
+	TutorialCore.core._tutorialNoteTagsProcessed = false;
 
 
 	/* Plugin Functions */
-	function processDatabaseNoteTags() {
-		const databaseObjects = [
-			$dataActors, $dataClasses, $dataSkills, $dataItems,
-			$dataWeapons, $dataArmors, $dataEnemies, $dataTroops,
-			$dataStates, $dataTilesets
-		];
-
-		databaseObjects.forEach(dataArray => {
-			if (dataArray) {
-				dataArray.forEach(entry => {
-					this.processNoteTags(entry);
-				});
-			}
-		});
-	};
-
-	function processMapNoteTags(){
-		this.processNoteTags($dataMap);
-	}
-
-	function processNoteTags(dataObject) {
-		const enabledPlugins = this.getEnabledPlugins();
+	TutorialCore.core.processNoteTags = function(dataObject) {
+		const enabledPlugins = TutorialCore.helpers.getEnabledPlugins();
 		if (dataObject && dataObject.note) {
 			dataObject._tutorialNoteTagData = dataObject._tutorialNoteTagData || {};
 			enabledPlugins.forEach(pluginName => {
-				const normalizedPluginName = pluginName.replace("TutorialPlugin", "tutorialPlugin");
+				let normalizedPluginName = pluginName.replace("TutorialPlugin", "tutorialPlugin");
 				normalizedPluginName = pluginName.replace("_", "");
 				const startTag = `<${pluginName}>`;
 				const endTag = `</${pluginName}>`;
 				dataObject._tutorialNoteTagData[`_${normalizedPluginName}`] =
-					this.parseNoteTags(dataObject.note, startTag, endTag, pluginName);
+					TutorialCore.core.parseNoteTags(dataObject.note, startTag, endTag, pluginName);
 			});
 		}
 	};
 
-	function parseNoteTags(note, startTag, endTag, pluginName) {
+	TutorialCore.core.parseNoteTags = function(note, startTag, endTag, pluginName) {
 		const lines = note.split(/[\r\n]+/);
 		let parsing = false;
 		let result = {};
@@ -96,7 +76,7 @@ TutorialCore.statics = TutorialCore.statics || {};
 				if (nestedParsing && line === `</${nestedTag}>`) {
 					try {
 						console.log("nested content: ", nestedContent);
-						const propertyName = this.dynamicMapping(nestedTag);
+						const propertyName = TutorialCore.core.dynamicMapping(nestedTag);
 						result[propertyName] = JSON.parse(nestedContent);
 					} catch (e) {
 						console.error(`Failed to parse content for nested tag <${nestedTag}>:`, e);
@@ -114,19 +94,19 @@ TutorialCore.statics = TutorialCore.statics || {};
 				}
 
 				const [key, value] = line.split(":").map(part => part.trim());
-				const mappedKey = this.dynamicMapping(key);
-				result[mappedKey] = this.convertValue(value);
+				const mappedKey = TutorialCore.core.dynamicMapping(key);
+				result[mappedKey] = TutorialCore.core.convertValue(value);
 			}
 		}
 
 		return result;
 	};
 
-	function dynamicMapping(key) {
+	TutorialCore.core.dynamicMapping = function(key) {
 		return `_${key.charAt(0).toLowerCase()}${key.slice(1)}`;
 	};
 
-	function convertValue(value) {
+	TutorialCore.core.convertValue = function(value) {
 		if (!isNaN(value)) {
 			return parseFloat(value);
 		}
@@ -150,11 +130,11 @@ TutorialCore.statics = TutorialCore.statics || {};
 		return value;
 	};
 
-	function getDatabaseEntry(databaseType, id) {
+	TutorialCore.core.getDatabaseEntry = function(databaseType, id) {
 		const database = window[databaseType];
 		if (!database) {
 			console.error(`Database "${databaseType}" not found.`);
-			return null;
+			return undefined;
 		}
 
 		const entry = database[id];
@@ -165,31 +145,152 @@ TutorialCore.statics = TutorialCore.statics || {};
 		return entry;
 	};
 
+	TutorialCore.core.canParseJSON = function(jsonString) {
+		try {
+			JSON.parse(jsonString);
+			return true;
+		} catch (error) {
+			//Output into console
+			return false;
+		}
+	}
+
+	TutorialCore.core.isANumber = function(value) {
+		if (isNaN(value)) {
+			//Error handling
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 
 	/* Helper Functions */
 	TutorialCore.helpers.getEnabledPlugins = function() {
 		return $plugins.filter(plugin => plugin.status && plugin.name.startsWith("TutorialPlugin")).map(plugin => plugin.name);
 	};
 
+	TutorialCore.helpers.processDatabaseNoteTags = function() {
+		const databaseObjects = [
+			$dataActors, $dataClasses, $dataSkills, $dataItems,
+			$dataWeapons, $dataArmors, $dataEnemies, $dataTroops,
+			$dataStates, $dataTilesets
+		];
+
+		databaseObjects.forEach(dataArray => {
+			if (dataArray) {
+				dataArray.forEach(entry => {
+					TutorialCore.core.processNoteTags(entry);
+				});
+			}
+		});
+	};
+
+	TutorialCore.helpers.processMapNoteTags = function(){
+		TutorialCore.core.processNoteTags($dataMap);
+	}
+
 	TutorialCore.helpers.rejoinArguments = function(args, startIndex) {
 		return args.slice(startIndex).join(" ");
 	};
 
 	TutorialCore.helpers.getActorById = function(id) {
-		return this.getDatabaseEntry("$dataActors", id);
+		return TutorialCore.core.getDatabaseEntry("$dataActors", id);
 	};
 
-	TutorialCore.helpers.getEnemyById = function(id) {
-		return this.getDatabaseEntry("$dataEnemies", id);
-	};
+	TutorialCore.helpers.getClassById = function(id) {
+		return TutorialCore.core.getDatabaseEntry("$dataClasses", id);
+	}
 
 	TutorialCore.helpers.getSkillById = function(id) {
-		return this.getDatabaseEntry("$dataSkills", id);
+		return TutorialCore.core.getDatabaseEntry("$dataSkills", id);
 	};
 
 	TutorialCore.helpers.getItemById = function(id) {
-		return this.getDatabaseEntry("$dataItems", id);
+		return TutorialCore.core.getDatabaseEntry("$dataItems", id);
 	};
+
+	TutorialCore.helpers.getWeaponById = function(id) {
+		return TutorialCore.core.getDatabaseEntry("$dataWeapons", id);
+	}
+
+	TutorialCore.helpers.getArmorById = function(id) {
+		return TutorialCore.core.getDatabaseEntry("$dataArmors", id);
+	}
+
+	TutorialCore.helpers.getEnemyById = function(id) {
+		return TutorialCore.core.getDatabaseEntry("$dataEnemies", id);
+	};
+
+	TutorialCore.helpers.getTroopById = function(id) {
+		return TutorialCore.core.getDatabaseEntry("$dataTroops", id);
+	}
+
+	TutorialCore.helpers.getStatusById = function(id) {
+		return TutorialCore.core.getDatabaseEntry("$dataStates", id);
+	}
+
+	TutorialCore.helpers.parseJSONList = function(jsonList) {
+		let finalObject = [];
+		let parsedList = this.parseJSON(jsonList);
+		for (let object of parsedList) {
+			finalObject.push(TutorialCore.helpers.recursiveJSONParse(object));
+		}
+
+		return finalObject;
+	}
+
+	TutorialCore.helpers.recursiveJSONParse = function(prasableObject) {		
+		let data = JSON.parse(prasableObject);
+		for (let key in data) {
+			let value = data[key];
+			if (value.substr(0, 2) == '[\"' ||
+				value.substr(0,2) == '["' ||
+				value.substr(0, 2) == '[]' ||
+				value.substr(0, 2) == '{\"' ||
+				value.substr(0,2) == '{"' ||
+				value.substr(0, 2) == '{}')
+			{
+				console.log("found parsable string: ", value);
+				data[key] = TutorialCore.helpers.recursiveJSONParse(value);
+			}
+		}
+	
+		return data;
+	}
+
+	TutorialCore.helpers.parseJSON = function(jsonString) {
+		let jsonObject = {};
+		if (TutorialCore.core.canParseJSON(jsonString)) {
+			jsonObject = JSON.parse(jsonString);
+		}
+
+		return jsonObject;
+	}
+
+	TutorialCore.helpers.getNumber = function(value) {
+		let returnValue = 0;
+		if (TutorialCore.core.isANumber(value)) {
+			returnValue = Number(value);
+		}
+
+		return returnValue;
+	}
+
+	TutorialCore.helpers.orderData = function(data, property, direction) {
+		//Error handling for property and direction params
+		data.sort((a, b) => {
+			return (a[property] < b[property] && direction == "desc" ? 1 : (
+				a[property] < b[property] && direction == "asc" ? -1 : (
+					a[property] > b[property] && direction == "desc" ? -1 : (
+						a[property] > b[property] && direction == "asc" ? 1 : 0		
+			))));
+		});
+	}
+
+	TutorialCore.helpers.clamp = function(value, min, max) {
+		return Math.max(min, Math.min(value, max));
+	}
 
 
 	/* Alias Functions */
@@ -199,9 +300,9 @@ TutorialCore.statics = TutorialCore.statics || {};
 			return false;
 		}
 
-		if (!this._tutorialNoteTagsProcessed) {
-			this.processDatabaseNoteTags();
-			this._tutorialNoteTagsProcessed = true;
+		if (!TutorialCore.core._tutorialNoteTagsProcessed) {
+			TutorialCore.helpers.processDatabaseNoteTags();
+			TutorialCore.core._tutorialNoteTagsProcessed = true;
 		}
 
 		return true;
@@ -215,7 +316,7 @@ TutorialCore.statics = TutorialCore.statics || {};
 			DataManager.onLoad = function(data) {
 				TutorialCore_DataManager_onLoad.call(this, data);
 				if (data === $dataMap) {
-					this.processMapNoteTags();
+					TutorialCore.helpers.processMapNoteTags();
 				}
 			};
 		}
